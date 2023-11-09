@@ -15,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
     Button insertBtn,getBtn,showAllBtn;
     EditText name,email,getPerson;
     TextView result,getAll;
+    boolean showAllClicked=false,searchClicked=false;
     @SuppressLint({"MissingInflatedId", "WrongViewCast"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,9 +48,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         getBtn.setOnClickListener(new View.OnClickListener(){
-
             @Override
             public void onClick(View v) {
+                if(searchClicked){
+                    searchClicked=false;
+                    result.setText("");
+                    getPerson.setText("");
+                    getBtn.setText("Search");
+                    return;
+                }
                 String nameStr=getPerson.getText().toString();
                 DBHelper db=new DBHelper(MainActivity.this);
                 Cursor cursor=db.getRecord(nameStr);
@@ -58,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else{
                     while(cursor.moveToNext()){
+                        searchClicked=true;
+                        getBtn.setText("Hide");
                         result.setText("Name: "+cursor.getString(1)+"\nEmail: "+cursor.getString(2));
                         Toast.makeText(MainActivity.this, "Name: "+cursor.getString(1)+"\nEmail: "+cursor.getString(2), Toast.LENGTH_SHORT).show();
                     }
@@ -69,12 +78,20 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
+                if(showAllClicked){
+                    showAllClicked=false;
+                    showAllBtn.setText("Show All");
+                    getAll.setText("");
+                    return;
+                }
                 DBHelper db=new DBHelper(MainActivity.this);
                 Cursor cursor=db.getAllData();
                 if(cursor.getCount()==0){
                     Toast.makeText(MainActivity.this, "No Record Found", Toast.LENGTH_SHORT).show();
                 }
                 else{
+                    showAllClicked=true;
+                    showAllBtn.setText("Hide All");
                     StringBuffer buffer=new StringBuffer();
                     while(cursor.moveToNext()){
                         buffer.append("Name: "+cursor.getString(1)+"\nEmail: "+cursor.getString(2)+"\n\n");
